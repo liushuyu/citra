@@ -35,6 +35,7 @@ static void PrintHelp(const char* argv0) {
     std::cout << "Usage: " << argv0
               << " [options] <filename>\n"
                  "--room-name         The name of the room\n"
+                 "--address           The address for the room server to listen on\n"
                  "--port              The port used for the room\n"
                  "--max_members       The maximum number of players for this room\n"
                  "--password          The password for the room\n"
@@ -61,6 +62,7 @@ int main(int argc, char** argv) {
     gladLoadGL();
 
     std::string room_name;
+    std::string address;
     std::string password;
     std::string preferred_game;
     std::string username;
@@ -72,6 +74,7 @@ int main(int argc, char** argv) {
 
     static struct option long_options[] = {
         {"room-name", required_argument, 0, 'n'},
+        {"address", required_argument, 0, 's'},
         {"port", required_argument, 0, 'p'},
         {"max_members", required_argument, 0, 'm'},
         {"password", required_argument, 0, 'w'},
@@ -86,11 +89,14 @@ int main(int argc, char** argv) {
     };
 
     while (optind < argc) {
-        char arg = getopt_long(argc, argv, "n:p:m:w:g:u:t:a:i:hv", long_options, &option_index);
+        char arg = getopt_long(argc, argv, "n:s:p:m:w:g:u:t:a:i:hv", long_options, &option_index);
         if (arg != -1) {
             switch (arg) {
             case 'n':
                 room_name.assign(optarg);
+                break;
+            case 's':
+                address.assign(optarg);
                 break;
             case 'p':
                 port = strtoul(optarg, &endarg, 0);
@@ -173,7 +179,7 @@ int main(int argc, char** argv) {
 
     Network::Init();
     if (std::shared_ptr<Network::Room> room = Network::GetRoom().lock()) {
-        if (!room->Create(room_name, "", port, password, max_members, preferred_game,
+        if (!room->Create(room_name, address, port, password, max_members, preferred_game,
                           preferred_game_id)) {
             std::cout << "Failed to create room: \n\n";
             return -1;

@@ -1,0 +1,16 @@
+pipeline:
+  build:
+    image: citraemu/build-environments:linux-${}
+    commands:
+      - ./.drone/linux-${}/build.sh
+
+matrix:
+  BUILD_NAME:
+    - transifex
+    - fresh
+    - frozen
+    - mingw
+
+cache:
+  mount:
+    - /drone/.ccache

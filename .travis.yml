@@ -38,6 +38,19 @@ matrix:
       after_success: "./.travis/macos/upload.sh"
       cache: ccache
     - os: linux
+      env: NAME="OSXCross build"
+      sudo: required
+      dist: trusty
+      services: docker
+      addons:
+        apt:
+          packages:
+            - p7zip-full
+      install: "./.travis/linux-osxcross/deps.sh"
+      script: "./.travis/linux-osxcross/build.sh"
+      after_success: "./.travis/linux-osxcross/upload.sh"
+      cache: ccache
+    - os: linux
       env: NAME="linux build (frozen versions of dependencies)"
       sudo: required
       dist: trusty

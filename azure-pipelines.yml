@@ -1,0 +1,11 @@
+trigger:
+- master
+
+pool:
+  vmImage: 'Ubuntu-16.04'
+
+steps:
+- bash: |
+    ./.travis/linux/deps.sh
+    ./.travis/linux/build.sh
+  condition: eq( variables['Agent.OS'], 'Linux' )

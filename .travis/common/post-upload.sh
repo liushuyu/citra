@@ -23,6 +23,7 @@ mv "$REV_NAME" $RELEASE_NAME
 
 7z a "$REV_NAME.7z" $RELEASE_NAME
 
-# move the compiled archive into the artifacts directory to be uploaded by travis releases
-mv "$ARCHIVE_NAME" artifacts/
-mv "$REV_NAME.7z" artifacts/
+# move the compiled archive into the artifacts directory to be uploaded by azure pipelines
+# BUILD_ARTIFACTSTAGINGDIRECTORY is defined by az-pipeline agent
+mv "$ARCHIVE_NAME" "${BUILD_ARTIFACTSTAGINGDIRECTORY}/artifacts/"
+mv "$REV_NAME.7z" "${BUILD_ARTIFACTSTAGINGDIRECTORY}/artifacts/"

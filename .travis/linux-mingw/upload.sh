@@ -3,8 +3,8 @@
 . .travis/common/pre-upload.sh
 
 REV_NAME="citra-windows-mingw-${GITDATE}-${GITREV}"
-ARCHIVE_NAME="${REV_NAME}.tar.gz"
-COMPRESSION_FLAGS="-czvf"
+ARCHIVE_NAME="${REV_NAME}.zip"
+USE_ZIP='1'
 
 mkdir "$REV_NAME"
 # get around the permission issues

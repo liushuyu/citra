@@ -7,7 +7,11 @@ cp README.md "$REV_NAME"
 # Copy cross-platform scripting support
 cp -r dist/scripting "$REV_NAME"
 
-tar $COMPRESSION_FLAGS "$ARCHIVE_NAME" "$REV_NAME"
+if [ ! -z "$USE_ZIP" ]; then
+  7z a -tzip "$ARCHIVE_NAME" "$REV_NAME"
+else
+  tar $COMPRESSION_FLAGS "$ARCHIVE_NAME" "$REV_NAME"
+fi
 
 # Find out what release we are building
 if [ -z $TRAVIS_TAG ]; then

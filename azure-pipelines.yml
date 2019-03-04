@@ -126,3 +126,29 @@ jobs:
     inputs:
       artifactName: 'windows-msvc'
       targetPath: $(Build.ArtifactStagingDirectory)/artifacts
+
+# Android build
+- job: AndroidBuilds
+  pool:
+    vmImage: 'ubuntu-16.04'
+
+  steps:
+  - bash: git submodule update --init --recursive
+    displayName: 'Fetch submodules'
+  - bash: sudo apt-get update && sudo apt-get install -y ninja-build
+    displayName: 'Install dependencies'
+  - task: Gradle@2
+    inputs:
+      workingDirectory: $(system.defaultWorkingDirectory)/src/android
+      gradleWrapperFile: '$(system.defaultWorkingDirectory)/src/android/gradlew'
+      gradleOptions: '-Xmx3072m'
+      publishJUnitResults: false
+      testResultsFiles: '**/TEST-*.xml'
+      tasks: 'assembleDebug'
+  - task: CopyFiles@2
+    displayName: 'Copy APK package to artifacts directory'
+    inputs:
+      contents: '**/*.apk'
+      targetFolder: '$(build.artifactStagingDirectory)'
+  - task: PublishBuildArtifacts@1
+    displayName: 'Upload to artifact depot'

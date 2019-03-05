@@ -32,10 +32,23 @@ jobs:
       publishJUnitResults: false
       testResultsFiles: '**/TEST-*.xml'
       tasks: 'assembleDebug'
+  - task: AndroidSigning@3
+    displayName: 'Sign APK package'
+    inputs:
+      apkFiles: '**/*.apk'
+      apksign: true
+      apksignerKeystoreFile: 'test.jks'
+      apksignerKeystorePassword: '$(jks_password)'
+      apksignerKeystoreAlias: 'test'
+      apksignerKeyPassword: '$(jks_password)'
+      zipalign: false
   - task: CopyFiles@2
     displayName: 'Copy APK package to artifacts directory'
     inputs:
       contents: '**/*.apk'
       targetFolder: '$(build.artifactStagingDirectory)'
-  - task: PublishBuildArtifacts@1
+  - task: PublishPipelineArtifact@0
     displayName: 'Upload to artifact depot'
+    inputs:
+      artifactName: 'android-clang'
+      targetPath: $(Build.ArtifactStagingDirectory)/

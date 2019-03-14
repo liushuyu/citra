@@ -1250,6 +1250,7 @@ float ProcTexNoiseCoef(vec2 x) {
 
 std::string GenerateFragmentShader(const PicaFSConfig& config, bool separable_shader) {
     const auto& state = config.state;
+    const bool manual_clipping = GLES && !GLAD_GL_EXT_clip_cull_distance;
 
     std::string out = R"(
 #extension GL_ARB_shader_image_load_store : enable
@@ -1523,6 +1524,10 @@ vec4 secondary_fragment_color = vec4(0.0);
         out += "depth /= gl_FragCoord.w;\n";
     }
 
+    // Manual clipping for OpenGL ES devices which don't come with GL_EXT_clip_cull_distance
+    if (manual_clipping)
+        out += "if (depth < 0.0) { discard; } else {"; // PICA clipping plane z <= 0
+
     if (state.lighting.enable)
         WriteLighting(out, config);
 
@@ -1598,6 +1603,9 @@ do {
         // Round the final fragment color to maintain the PICA's 8 bits of precision
         out += "color = byteround(last_tex_env_out);\n";
     }
+
+    if (manual_clipping)
+        out += "}"; // closing bracket for `if (depth < 0.0)`
 
     out += "}";
 

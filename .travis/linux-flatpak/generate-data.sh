@@ -4,7 +4,7 @@
 # of citra we're building (nightly or canary)
 
 # Converts "citra-emu/citra-nightly" to "citra-nightly"
-REPO_NAME=$(echo $TRAVIS_REPO_SLUG | cut -d'/' -f 2)
+REPO_NAME=$(echo 'citra-emu/citra-canary' | cut -d'/' -f 2)
 # Converts "citra-nightly" to "Citra Nightly"
 REPO_NAME_FRIENDLY=$(echo $REPO_NAME | sed -e 's/-/ /g' -e 's/\b\(.\)/\u\1/g')
 
@@ -107,7 +107,7 @@ cat > /tmp/org.citra.$REPO_NAME.json <<EOF
             "sources": [
                 {
                     "type": "git",
-                    "url": "https://github.com/citra-emu/$REPO_NAME.git",
+                    "url": "https://github.com/liushuyu/citra.git",
                     "branch": "$TRAVIS_BRANCH",
                     "disable-shallow-clone": true
                 },

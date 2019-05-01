@@ -35,6 +35,8 @@ CMAKE_DEPENDENT_OPTION(ENABLE_MF "Use Media Foundation decoder (preferred over F
 
 CMAKE_DEPENDENT_OPTION(COMPILE_WITH_DWARF "Add DWARF debugging information" ON "MINGW" OFF)
 
+CMAKE_DEPENDENT_OPTION(ENABLE_FDK "Use FDK AAC decoder" ON "NOT ENABLE_FFMPEG;NOT ENABLE_MF" OFF)
+
 if(NOT EXISTS ${PROJECT_SOURCE_DIR}/.git/hooks/pre-commit)
     message(STATUS "Copying pre-commit hook")
     file(COPY hooks/pre-commit

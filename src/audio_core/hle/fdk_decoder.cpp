@@ -17,6 +17,8 @@ private:
 
     std::optional<BinaryResponse> Decode(const BinaryRequest& request);
 
+    void Clear();
+
     Memory::MemorySystem& memory;
 
     HANDLE_AACDECODER decoder = NULL;
@@ -25,14 +27,24 @@ private:
 FDKDecoder::Impl::Impl(Memory::MemorySystem& memory) : memory(memory) {
     // choose the input format when initializing: 1 layer of ADTS
     decoder = aacDecoder_Open(TRANSPORT_TYPE::TT_MP4_ADTS, 1);
+    // set maximum output channel to two (stereo)
+    // if the input samples have more channels, fdk_aac will perform a downmix
+    AAC_DECODER_ERROR ret = aacDecoder_SetParam(decoder, AAC_PCM_MAX_OUTPUT_CHANNELS, 2);
+    if (ret != AAC_DEC_OK) {
+        // unable to set this parameter reflects the decoder implementation might be broken
+        // we'd better shuts down everything
+        aacDecoder_Close(decoder);
+        decoder = NULL;
+        LOG_ERROR(Audio_DSP, "Unable to set downmix parameter: {}", ret);
+    }
 }
 
 std::optional<BinaryResponse> FDKDecoder::Impl::Initalize(const BinaryRequest& request) {
     BinaryResponse response;
     std::memcpy(&response, &request, sizeof(response));
     response.unknown1 = 0x0;
-    // TODO: identify the broken fdk_aac implementation and refuse to initialize
-    // once identified as broken (check for module IDs?)
+    // TODO(liushuyu): identify the broken fdk_aac implementation
+    // and refuse to initialize if identified as broken (check for module IDs?)
     // LIB_INFO decoder_info = {};
 
     if (decoder) {
@@ -45,7 +57,19 @@ std::optional<BinaryResponse> FDKDecoder::Impl::Initalize(const BinaryRequest& r
 }
 
 FDKDecoder::Impl::~Impl() {
-    aacDecoder_Close(decoder);
+    if (decoder)
+        aacDecoder_Close(decoder);
+}
+
+void FDKDecoder::Impl::Clear() {
+    s16 decoder_output[8192];
+    // flush and re-sync the decoder, discarding the internal buffer
+    // we actually don't care if this succeeds or not
+    // FLUSH - flush internal buffer
+    // INTR - treat the current internal buffer as discontinuous
+    // CONCEAL - try to interpolate and smooth out the samples
+    aacDecoder_DecodeFrame(decoder, decoder_output, 8192,
+                           AACDEC_FLUSH & AACDEC_INTR & AACDEC_CONCEAL);
 }
 
 std::optional<BinaryResponse> FDKDecoder::Impl::ProcessRequest(const BinaryRequest& request) {
@@ -88,6 +112,8 @@ std::optional<BinaryResponse> FDKDecoder::Impl::Decode(const BinaryRequest& requ
         return response;
     }
 
+    Clear();
+
     if (request.src_addr < Memory::FCRAM_PADDR ||
         request.src_addr + request.size > Memory::FCRAM_PADDR + Memory::FCRAM_SIZE) {
         LOG_ERROR(Audio_DSP, "Got out of bounds src_addr {:08x}", request.src_addr);
@@ -105,13 +131,14 @@ std::optional<BinaryResponse> FDKDecoder::Impl::Decode(const BinaryRequest& requ
     s16 decoder_output[8192];
     // note that we don't free this pointer as it is automatically freed by fdk_aac
     CStreamInfo* stream_info;
-    // how many bytes to be queued into the decoder, decrement from the buffer size
+    // how many bytes to be queued into the decoder, decrementing from the buffer size
     u32 buffer_remaining = data_size;
     // alias the data_size as an u32
     u32 input_size = data_size;
 
     while (buffer_remaining) {
-        // queue the input buffer
+        // queue the input buffer, fdk_aac will automatically slice out the buffer it needs
+        // from the input buffer
         result = aacDecoder_Fill(decoder, &data, &input_size, &buffer_remaining);
         if (result != AAC_DEC_OK) {
             // there are some issues when queuing the input buffer
@@ -134,7 +161,7 @@ std::optional<BinaryResponse> FDKDecoder::Impl::Decode(const BinaryRequest& requ
                 }
             }
         } else if (result == AAC_DEC_TRANSPORT_SYNC_ERROR) {
-            // decoder has some synchronization problems, try again with new samples
+            // decoder has some synchronization problems, try again with new samples,
             // using old samples might trigger this error again
             continue;
         } else {

@@ -225,6 +225,12 @@ if (ENABLE_FFMPEG_VIDEO_DUMPER)
     add_definitions(-DENABLE_FFMPEG_VIDEO_DUMPER)
 endif()
 
+if (ENABLE_FDK)
+    find_library(FDK_AAC fdk-aac DOC "The path to fdk_aac library")
+    if(FDK_AAC STREQUAL "FDK_AAC-NOTFOUND")
+        message(FATAL_ERROR "fdk_aac library not found.")
+    endif()
+endif()
 # Platform-specific library requirements
 # ======================================
 

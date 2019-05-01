@@ -67,7 +67,7 @@ elseif(ENABLE_FDK)
         hle/fdk_decoder.cpp
         hle/fdk_decoder.h
     )
-    target_link_libraries(audio_core PRIVATE fdk-aac)
+    target_link_libraries(audio_core PRIVATE ${FDK_AAC})
     target_compile_definitions(audio_core PUBLIC HAVE_FDK)
 endif()
 

@@ -21,12 +21,32 @@ private:
 
     void Clear();
 
+    int GetFDKInfo();
+
     Memory::MemorySystem& memory;
 
     HANDLE_AACDECODER decoder = NULL;
+    // allocate an array of LIB_INFO structures
+    LIB_INFO decoder_info[FDK_MODULE_LAST];
 };
 
 FDKDecoder::Impl::Impl(Memory::MemorySystem& memory) : memory(memory) {
+    if (GetFDKInfo() != 0) {
+        LOG_ERROR(Audio_DSP, "Failed to retrieve fdk_aac library information!");
+        return;
+    }
+    // This segment: identify the broken fdk_aac implementation
+    // and refuse to initialize if identified as broken (check for module IDs)
+    // although our AAC samples do not contain SBC feature, this is a way to detect
+    // watered down version of fdk_aac implementations
+    if (FDKlibInfo_getCapabilities(decoder_info, FDK_SBRDEC) == 0) {
+        LOG_ERROR(Audio_DSP, "Bad fdk_aac library found! Initialization aborted!");
+        return;
+    }
+
+    LOG_INFO(Audio_DSP, "Using fdk_aac version {} (build date: {})", decoder_info[0].versionStr,
+             decoder_info[0].build_date);
+
     // choose the input format when initializing: 1 layer of ADTS
     decoder = aacDecoder_Open(TRANSPORT_TYPE::TT_MP4_ADTS, 1);
     // set maximum output channel to two (stereo)
@@ -38,19 +58,27 @@ FDKDecoder::Impl::Impl(Memory::MemorySystem& memory) : memory(memory) {
         aacDecoder_Close(decoder);
         decoder = NULL;
         LOG_ERROR(Audio_DSP, "Unable to set downmix parameter: {}", ret);
+        return;
     }
+}
+
+int FDKDecoder::Impl::GetFDKInfo() {
+    // if we don't pre-fill the whole segment with zeros, when we call `aacDecoder_GetLibInfo`
+    // it will segfault, upon investigation, there is some code in fdk_aac depends on your initial
+    // values in this array
+    bzero(decoder_info, sizeof(LIB_INFO) * FDK_MODULE_LAST);
+    // get library information and fill the struct
+    return aacDecoder_GetLibInfo(decoder_info);
 }
 
 std::optional<BinaryResponse> FDKDecoder::Impl::Initalize(const BinaryRequest& request) {
     BinaryResponse response;
     std::memcpy(&response, &request, sizeof(response));
     response.unknown1 = 0x0;
-    // TODO(liushuyu): identify the broken fdk_aac implementation
-    // and refuse to initialize if identified as broken (check for module IDs?)
-    // LIB_INFO decoder_info = {};
 
     if (decoder) {
         LOG_INFO(Audio_DSP, "FDK Decoder initialized");
+        Clear();
     } else {
         LOG_ERROR(Audio_DSP, "Decoder not initialized");
     }
@@ -113,8 +141,6 @@ std::optional<BinaryResponse> FDKDecoder::Impl::Decode(const BinaryRequest& requ
         response.num_samples = 1024;
         return response;
     }
-
-    Clear();
 
     if (request.src_addr < Memory::FCRAM_PADDR ||
         request.src_addr + request.size > Memory::FCRAM_PADDR + Memory::FCRAM_SIZE) {

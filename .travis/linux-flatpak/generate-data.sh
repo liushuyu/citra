@@ -56,12 +56,12 @@ cat > /tmp/org.citra.$REPO_NAME.json <<EOF
         "env": {
             "CI": "$TF_BUILD",
             "AZP": "$TF_BUILD",
-            "AZP_BRANCH": "$BUILD_SOURCEBRANCHNAME",
+            "AZP_BRANCH": "$BUILD_SOURCEBRANCH",
             "AZP_BUILD_ID": "$BUILD_BUILDID",
             "AZP_BUILD_NUMBER": "$BUILD_BUILDNUMBER",
             "AZP_COMMIT": "$BUILD_SOURCEVERSION",
             "AZP_REPO_NAME": "$BUILD_REPOSITORY_NAME",
-            "AZP_TAG": "$BUILD_SOURCEBRANCH"
+            "AZP_TAG": "$BUILD_SOURCEBRANCHNAME"
         }
     },
     "finish-args": [

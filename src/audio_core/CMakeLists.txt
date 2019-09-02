@@ -60,6 +60,15 @@ elseif(ENABLE_FFMPEG_AUDIO_DECODER)
         target_include_directories(audio_core PRIVATE ${FFMPEG_DIR}/include)
     endif()
     target_compile_definitions(audio_core PUBLIC HAVE_FFMPEG)
+elseif(ENABLE_ANDROID_MF)
+    target_sources(audio_core PRIVATE
+        hle/amf_decoder.cpp
+        hle/amf_decoder.h
+        hle/amf_decoder_utils.cpp
+        hle/amf_decoder_utils.h
+    )
+    target_link_libraries(audio_core PRIVATE -lmediandk)
+    target_compile_definitions(audio_core PUBLIC HAVE_ANDROID_MF)
 endif()
 
 if(SDL2_FOUND)

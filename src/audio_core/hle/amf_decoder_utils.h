@@ -13,7 +13,8 @@
 
 // some vendor may have different string (which is against the standard)
 // and won't pass Android CTS
-const char* ndk_aac_type = "audio/mp4a-latm";
+#define ndk_aac_type "audio/mp4a-latm"
+
 // utility functions / templates
 struct AMediaFormatRelease {
     void operator()(AMediaFormat* format) const {
@@ -31,7 +32,7 @@ struct AMediaCodecRelease {
 using unique_codecptr = std::unique_ptr<AMediaCodec, AMediaCodecRelease>;
 using unique_fmtptr = std::unique_ptr<AMediaFormat, AMediaFormatRelease>;
 
-std::optional<std::vector<uint8_t>> decode_loop(AMediaCodec* coder, const char* buffer,
+std::optional<std::vector<u8>> decode_loop(AMediaCodec* coder, const char* buffer,
                                                 size_t buffer_size);
 unique_fmtptr DetectFormat(const char* buffer, std::size_t len);
 media_status_t SelectInputFormat(AMediaCodec* coder, const char* buffer, size_t buffer_size);

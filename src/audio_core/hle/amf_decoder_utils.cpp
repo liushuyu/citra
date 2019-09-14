@@ -4,16 +4,16 @@
 
 #include "amf_decoder_utils.h"
 
-std::optional<std::vector<uint8_t>> decode_loop(AMediaCodec* coder, const char* buffer,
+std::optional<std::vector<u8>> decode_loop(AMediaCodec* coder, const char* buffer,
                                                 size_t buffer_size) {
     media_status_t status;
-    uint8_t* in_buffer = NULL;
-    uint8_t* out_buffer = NULL;
+    u8* in_buffer = NULL;
+    u8* out_buffer = NULL;
     ssize_t in_queue_id = 0;
     ssize_t out_queue_id = 0;
     size_t out_size = 0;
     AMediaCodecBufferInfo buffer_info;
-    std::optional<std::vector<uint8_t>> result;
+    std::optional<std::vector<u8>> result;
 
     // actual decoding loop
     // get the queue ID for queuing our next buffer

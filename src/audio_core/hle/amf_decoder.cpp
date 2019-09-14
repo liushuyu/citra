@@ -93,17 +93,19 @@ std::optional<BinaryResponse> AMFDecoder::Impl::Decode(const BinaryRequest& requ
     media_status_t status;
 
     if (!selected) {
-        status = SelectInputFormat(coder.get(), data, data_size);
+        status = SelectInputFormat(coder.get(), (char*)data, data_size);
         if (status != AMEDIA_OK) {
             LOG_ERROR(Audio_DSP, "Unable to select input format {:08x}", status);
             return {};
         }
     }
 
-    out_streams = decode_loop(coder, data, data_size);
-    if (!out_streams) {
+    auto out_streams_result = decode_loop(coder.get(), (char*)data, data_size);
+    if (!out_streams_result) {
         LOG_ERROR(Audio_DSP, "Unable to decode samples, error is not recoverable");
+        return {};
     }
+    // out_streams = out_streams_result.value();
 
     // transfer the decoded buffer from vector to the FCRAM
     if (out_streams[0].size() != 0) {

@@ -1,24 +1,12 @@
 #!/bin/bash -ex
 
-cd /yuzu
+cd /citra
 
 ccache -s
 
-# Dirty hack to trick unicorn makefile into believing we are in a MINGW system
-mv /bin/uname /bin/uname1 && echo -e '#!/bin/sh\necho MINGW64' >> /bin/uname
-chmod +x /bin/uname
-
-# Dirty hack to trick unicorn makefile into believing we have cmd
-echo '' >> /bin/cmd
-chmod +x /bin/cmd
-
 mkdir build || true && cd build
-cmake .. -G Ninja -DDISPLAY_VERSION=$1 -DCMAKE_TOOLCHAIN_FILE="$(pwd)/../CMakeModules/MinGWCross.cmake" -DUSE_CCACHE=ON -DYUZU_USE_BUNDLED_UNICORN=ON -DENABLE_COMPATIBILITY_LIST_DOWNLOAD=ON -DCMAKE_BUILD_TYPE=Release
+cmake .. -G Ninja -DCMAKE_TOOLCHAIN_FILE="$(pwd)/../CMakeModules/MinGWCross.cmake" -DUSE_CCACHE=ON -DCMAKE_BUILD_TYPE=Release -DENABLE_QT_TRANSLATION=ON -DCITRA_ENABLE_COMPATIBILITY_REPORTING=${ENABLE_COMPATIBILITY_REPORTING:-"OFF"} -DENABLE_COMPATIBILITY_LIST_DOWNLOAD=ON -DUSE_DISCORD_PRESENCE=ON -DENABLE_MF=ON -DENABLE_FFMPEG_VIDEO_DUMPER=ON -DCMAKE_NO_SYSTEM_FROM_IMPORTED=TRUE -DCOMPILE_WITH_DWARF=OFF
 ninja
-
-# Clean up the dirty hacks
-rm /bin/uname && mv /bin/uname1 /bin/uname
-rm /bin/cmd
 
 ccache -s
 
@@ -30,7 +18,7 @@ cd ..
 mkdir package
 
 QT_PLATFORM_DLL_PATH='/usr/x86_64-w64-mingw32/lib/qt5/plugins/platforms/'
-find build/ -name "yuzu*.exe" -exec cp {} 'package' \;
+find build/ -name "citra*.exe" -exec cp {} 'package' \;
 
 # copy Qt plugins
 mkdir package/platforms
@@ -46,5 +34,4 @@ for i in package/*.exe; do
 done
 
 pip3 install pefile
-python3 .ci/scripts/windows/scan_dll.py package/*.exe "package/"
-python3 .ci/scripts/windows/scan_dll.py package/imageformats/*.dll "package/"
+python3 .travis/linux-mingw/scan_dll.py package/*.exe package/imageformats/*.dll "package/"

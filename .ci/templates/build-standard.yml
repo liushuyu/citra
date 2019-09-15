@@ -18,7 +18,7 @@ jobs:
   steps:
   - template: ./sync-source.yml
     parameters:
-      artifactSource: $(parameters.artifactSource)
+      artifactSource: ${{ parameters.artifactSource }}
       needSubmodules: 'true'
   - template: ./build-single.yml
     parameters:

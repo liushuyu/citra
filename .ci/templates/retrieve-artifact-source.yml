@@ -6,7 +6,7 @@ steps:
     artifactName: 'citra-$(BuildName)-source'
     buildType: 'current'
     targetPath: '$(Build.ArtifactStagingDirectory)'
-- script: rm -rf $(System.DefaultWorkingDirectory) && mkdir $(System.DefaultWorkingDirectory)
+- bash: rm -rf $(System.DefaultWorkingDirectory) && mkdir $(System.DefaultWorkingDirectory)
   displayName: 'Clean Working Directory'
 - task: ExtractFiles@1
   displayName: 'Prepare Source'

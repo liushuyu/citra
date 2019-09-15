@@ -1,7 +1,5 @@
 #!/bin/bash -ex
 
-cd /citra
-
 ccache -s
 
 mkdir build || true && cd build

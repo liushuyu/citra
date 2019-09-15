@@ -4,7 +4,7 @@ parameters:
 steps:
 - template: ./sync-source.yml
   parameters:
-    artifactSource: $(parameters.artifactSource)
+    artifactSource: ${{ parameters.artifactSource }}
     needSubmodules: 'false'
 - task: DockerInstaller@0
   displayName: 'Prepare Environment'

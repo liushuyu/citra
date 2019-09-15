@@ -25,7 +25,7 @@ jobs:
   - ${{ if eq(variables.enabletesting, 'true') }}:
     - template: ./sync-source.yml
       parameters:
-        artifactSource: $(parameters.artifactSource)
+        artifactSource: ${{ parameters.artifactSource }}
         needSubmodules: 'true'
     - template: ./mergebot.yml
       parameters:

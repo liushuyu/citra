@@ -2,7 +2,7 @@
 
 . .ci/scripts/common/pre-upload.sh
 
-REV_NAME="yuzu-linux-${GITDATE}-${GITREV}"
+REV_NAME="citra-linux-${GITDATE}-${GITREV}"
 ARCHIVE_NAME="${REV_NAME}.tar.xz"
 COMPRESSION_FLAGS="-cJvf"
 
@@ -12,9 +12,9 @@ else
     DIR_NAME="${REV_NAME}_${RELEASE_NAME}"
 fi
 
-mkdir "$DIR_NAME"
+mkdir -p "$DIR_NAME"
 
-cp build/bin/yuzu-cmd "$DIR_NAME"
-cp build/bin/yuzu "$DIR_NAME"
+cp build/bin/citra "$REV_NAME"
+cp build/bin/citra-qt "$REV_NAME"
 
 . .ci/scripts/common/post-upload.sh

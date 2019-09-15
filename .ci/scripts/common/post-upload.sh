@@ -1,5 +1,7 @@
 #!/bin/bash -ex
 
+RELEASE_NAME="${RELEASE_NAME:-head}"
+
 # Copy documentation
 cp license.txt "$DIR_NAME"
 cp README.md "$DIR_NAME"

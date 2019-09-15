@@ -1,5 +1,6 @@
 parameters:
   artifactSource: 'true'
+  archiveArtifact: 'true'
   cache: 'false'
   version: ''
 
@@ -11,12 +12,13 @@ steps:
       key: citra-v1-$(BuildName)-$(BuildSuffix)-$(CacheSuffix)
       path: $(System.DefaultWorkingDirectory)/ccache
       cacheHitVar: CACHE_RESTORED
-- script: ./.ci/scripts/$(ScriptFolder)/docker.sh
+- bash: ./.ci/scripts/$(ScriptFolder)/docker.sh
   displayName: 'Build'
   env:
     CCACHE_DIR: $(System.DefaultWorkingDirectory)/ccache
-- script: RELEASE_NAME=$(BuildName) ./.ci/scripts/$(ScriptFolder)/upload.sh
-  displayName: 'Package Artifacts'
-- publish: artifacts
-  artifact: 'citra-$(BuildName)-$(BuildSuffix)'
-  displayName: 'Upload Artifacts'
+- ${{ if eq(parameters.archiveArtifact, 'true') }}:
+  - bash: RELEASE_NAME=$(BuildName) ./.ci/scripts/$(ScriptFolder)/upload.sh
+    displayName: 'Package Artifacts'
+  - publish: artifacts
+    artifact: 'citra-$(BuildName)-$(BuildSuffix)'
+    displayName: 'Upload Artifacts'

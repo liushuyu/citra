@@ -14,7 +14,7 @@ def check_individual(labels):
             return True
     return False
 
-try:
+def do_page(page):
     url = 'https://api.github.com/repos/citra-emu/citra/pulls?page=%s' % page
     response = requests.get(url)
     if (response.ok):

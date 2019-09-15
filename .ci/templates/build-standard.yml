@@ -3,20 +3,24 @@ parameters:
 
 jobs:
 - job: build
-  displayName: 'standard'
+  displayName: 'container build'
   pool:
     vmImage: ubuntu-latest
   strategy:
     maxParallel: 10
     matrix:
       windows:
-        BuildSuffix: 'windows-mingw'
+        BuildSuffix: 'linux-mingw'
         ScriptFolder: 'windows'
         containerImage: 'citraemu/build-environments:linux-mingw'
-      linux:
-        BuildSuffix: 'linux'
-        ScriptFolder: 'linux'
+      linux_fresh:
+        BuildSuffix: 'linux-fresh'
+        ScriptFolder: 'linux-fresh'
         containerImage: 'citraemu/build-environments:linux-fresh'
+      linux_frozen:
+        BuildSuffix: 'linux-frozen'
+        ScriptFolder: 'linux-frozen'
+        containerImage: 'citraemu/build-environments:linux-frozen'
   container: $[ variables['containerImage'] ]
   steps:
   - template: ./sync-source.yml
@@ -26,5 +30,22 @@ jobs:
   - template: ./build-single.yml
     parameters:
       artifactSource: 'false'
-      cache: $(parameters.cache)
-      version: $(parameters.version)
+      cache: ${{ parameters.cache }}
+      archiveArtifact: ${{ parameters.archiveArtifact }}
+# native builds
+- job: build_macos
+  displayName: 'build-macos'
+  variables:
+    ScriptFolder: 'macos'
+  pool:
+    vmImage: macos-latest
+  steps:
+  - template: ./sync-source.yml
+    parameters:
+      artifactSource: ${{ parameters.artifactSource }}
+      needSubmodules: 'true'
+  - template: ./build-single.yml
+    parameters:
+      artifactSource: 'false'
+      cache: ${{ parameters.cache }}
+      archiveArtifact: ${{ parameters.archiveArtifact }}

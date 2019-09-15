@@ -12,6 +12,7 @@ stages:
   jobs:
   - job: format
     displayName: 'clang'
+    # container: 'citraemu/build-environments:linux-clang-format'
     pool:
       vmImage: ubuntu-latest
     steps:

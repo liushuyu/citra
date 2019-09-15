@@ -1,6 +1,5 @@
 #!/bin/bash -ex
 
-# Run clang-format
 cd /citra
-chmod a+x ./.ci/scripts/format/script.sh
+# Run clang-format
 ./.ci/scripts/format/script.sh

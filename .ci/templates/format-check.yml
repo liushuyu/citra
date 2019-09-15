@@ -2,13 +2,12 @@ parameters:
   artifactSource: 'true'
 
 steps:
+# Temporary fix for lacking dependency
+# - script: sudo apt-get update && sudo apt-get install p7zip-full
+#   displayName: 'Install missing dependencies'
 - template: ./sync-source.yml
   parameters:
     artifactSource: ${{ parameters.artifactSource }}
     needSubmodules: 'false'
-- task: DockerInstaller@0
-  displayName: 'Prepare Environment'
-  inputs:
-    dockerVersion: '17.09.0-ce'
-- script: chmod a+x ./.ci/scripts/format/exec.sh && ./.ci/scripts/format/exec.sh
+- script: ./.ci/scripts/format/exec.sh
   displayName: 'Verify Formatting'

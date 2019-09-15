@@ -12,9 +12,12 @@ jobs:
       windows:
         BuildSuffix: 'windows-mingw'
         ScriptFolder: 'windows'
+        containerImage: 'citraemu/build-environments:linux-mingw'
       linux:
         BuildSuffix: 'linux'
         ScriptFolder: 'linux'
+        containerImage: 'citraemu/build-environments:linux-fresh'
+  container: $[ variables['containerImage'] ]
   steps:
   - template: ./sync-source.yml
     parameters:

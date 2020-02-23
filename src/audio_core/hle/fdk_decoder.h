@@ -4,6 +4,8 @@
 
 #pragma once
 
+#include <fdk-aac/aacdecoder_lib.h>
+
 #include "audio_core/hle/decoder.h"
 
 namespace AudioCore::HLE {
@@ -13,6 +15,7 @@ public:
     explicit FDKDecoder(Memory::MemorySystem& memory);
     ~FDKDecoder() override;
     std::optional<BinaryResponse> ProcessRequest(const BinaryRequest& request) override;
+    bool IsValid() const override;
 
 private:
     class Impl;

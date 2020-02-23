@@ -2,8 +2,6 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
-#include <fdk-aac/aacdecoder_lib.h>
-
 #include "audio_core/hle/fdk_decoder.h"
 
 namespace AudioCore::HLE {
@@ -13,6 +11,9 @@ public:
     explicit Impl(Memory::MemorySystem& memory);
     ~Impl();
     std::optional<BinaryResponse> ProcessRequest(const BinaryRequest& request);
+    bool IsValid() const {
+        return decoder != nullptr;
+    }
 
 private:
     std::optional<BinaryResponse> Initalize(const BinaryRequest& request);
@@ -21,17 +22,19 @@ private:
 
     void Clear();
 
-    int GetFDKInfo();
-
     Memory::MemorySystem& memory;
 
-    HANDLE_AACDECODER decoder = NULL;
-    // allocate an array of LIB_INFO structures
-    LIB_INFO decoder_info[FDK_MODULE_LAST];
+    HANDLE_AACDECODER decoder = nullptr;
 };
 
 FDKDecoder::Impl::Impl(Memory::MemorySystem& memory) : memory(memory) {
-    if (GetFDKInfo() != 0) {
+    // allocate an array of LIB_INFO structures
+    // if we don't pre-fill the whole segment with zeros, when we call `aacDecoder_GetLibInfo`
+    // it will segfault, upon investigation, there is some code in fdk_aac depends on your initial
+    // values in this array
+    LIB_INFO decoder_info[FDK_MODULE_LAST] = {};
+    // get library information and fill the struct
+    if (aacDecoder_GetLibInfo(decoder_info) != 0) {
         LOG_ERROR(Audio_DSP, "Failed to retrieve fdk_aac library information!");
         return;
     }
@@ -56,19 +59,10 @@ FDKDecoder::Impl::Impl(Memory::MemorySystem& memory) : memory(memory) {
         // unable to set this parameter reflects the decoder implementation might be broken
         // we'd better shuts down everything
         aacDecoder_Close(decoder);
-        decoder = NULL;
+        decoder = nullptr;
         LOG_ERROR(Audio_DSP, "Unable to set downmix parameter: {}", ret);
         return;
     }
-}
-
-int FDKDecoder::Impl::GetFDKInfo() {
-    // if we don't pre-fill the whole segment with zeros, when we call `aacDecoder_GetLibInfo`
-    // it will segfault, upon investigation, there is some code in fdk_aac depends on your initial
-    // values in this array
-    bzero(decoder_info, sizeof(LIB_INFO) * FDK_MODULE_LAST);
-    // get library information and fill the struct
-    return aacDecoder_GetLibInfo(decoder_info);
 }
 
 std::optional<BinaryResponse> FDKDecoder::Impl::Initalize(const BinaryRequest& request) {
@@ -98,8 +92,9 @@ void FDKDecoder::Impl::Clear() {
     // FLUSH - flush internal buffer
     // INTR - treat the current internal buffer as discontinuous
     // CONCEAL - try to interpolate and smooth out the samples
-    aacDecoder_DecodeFrame(decoder, decoder_output, 8192,
-                           AACDEC_FLUSH & AACDEC_INTR & AACDEC_CONCEAL);
+    if (decoder)
+        aacDecoder_DecodeFrame(decoder, decoder_output, 8192,
+                               AACDEC_FLUSH & AACDEC_INTR & AACDEC_CONCEAL);
 }
 
 std::optional<BinaryResponse> FDKDecoder::Impl::ProcessRequest(const BinaryRequest& request) {
@@ -228,6 +223,10 @@ FDKDecoder::~FDKDecoder() = default;
 
 std::optional<BinaryResponse> FDKDecoder::ProcessRequest(const BinaryRequest& request) {
     return impl->ProcessRequest(request);
+}
+
+bool FDKDecoder::IsValid() const {
+    return impl->IsValid();
 }
 
 } // namespace AudioCore::HLE

@@ -2,6 +2,7 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
+#include <fdk-aac/aacdecoder_lib.h>
 #include "audio_core/hle/fdk_decoder.h"
 
 namespace AudioCore::HLE {

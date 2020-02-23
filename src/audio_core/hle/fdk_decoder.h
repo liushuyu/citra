@@ -4,8 +4,6 @@
 
 #pragma once
 
-#include <fdk-aac/aacdecoder_lib.h>
-
 #include "audio_core/hle/decoder.h"
 
 namespace AudioCore::HLE {

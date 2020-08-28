@@ -21,6 +21,7 @@ stages:
   - template: ./templates/build-standard.yml
     parameters:
       artifactSource: 'false'
+      archiveArtifact: 'true'
       cache: 'true'
       version: $(DisplayVersion)
 - stage: build_win

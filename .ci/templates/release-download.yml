@@ -11,3 +11,9 @@ steps:
       artifactName: 'citra-$(BuildName)-linux'
       buildType: 'current'
       targetPath: '$(Build.ArtifactStagingDirectory)'
+  - task: DownloadPipelineArtifact@2
+    displayName: 'Download macOS Release'
+    inputs:
+      artifactName: 'citra-$(BuildName)-macos'
+      buildType: 'current'
+      targetPath: '$(Build.ArtifactStagingDirectory)'

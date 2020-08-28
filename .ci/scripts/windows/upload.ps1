@@ -4,18 +4,18 @@ $GITDATE = $(git show -s --date=short --format='%ad') -replace "-", ""
 $GITREV = $(git show -s --format='%h')
 
 if ("$BUILD_NAME" -eq "mainline") {
-    $RELEASE_DIST = "yuzu-windows-msvc"
+    $RELEASE_DIST = "citra-windows-msvc"
 }
 else {
-    $RELEASE_DIST = "yuzu-windows-msvc-$BUILD_NAME"
+    $RELEASE_DIST = "citra-windows-msvc-$BUILD_NAME"
 }
 
-$MSVC_BUILD_ZIP = "yuzu-windows-msvc-$GITDATE-$GITREV.zip" -replace " ", ""
-$MSVC_BUILD_PDB = "yuzu-windows-msvc-$GITDATE-$GITREV-debugsymbols.zip" -replace " ", ""
-$MSVC_SEVENZIP = "yuzu-windows-msvc-$GITDATE-$GITREV.7z" -replace " ", ""
-$MSVC_TAR = "yuzu-windows-msvc-$GITDATE-$GITREV.tar" -replace " ", ""
-$MSVC_TARXZ = "yuzu-windows-msvc-$GITDATE-$GITREV.tar.xz" -replace " ", ""
-$MSVC_SOURCE = "yuzu-windows-msvc-source-$GITDATE-$GITREV" -replace " ", ""
+$MSVC_BUILD_ZIP = "citra-windows-msvc-$GITDATE-$GITREV.zip" -replace " ", ""
+$MSVC_BUILD_PDB = "citra-windows-msvc-$GITDATE-$GITREV-debugsymbols.zip" -replace " ", ""
+$MSVC_SEVENZIP = "citra-windows-msvc-$GITDATE-$GITREV.7z" -replace " ", ""
+$MSVC_TAR = "citra-windows-msvc-$GITDATE-$GITREV.tar" -replace " ", ""
+$MSVC_TARXZ = "citra-windows-msvc-$GITDATE-$GITREV.tar.xz" -replace " ", ""
+$MSVC_SOURCE = "citra-windows-msvc-source-$GITDATE-$GITREV" -replace " ", ""
 $MSVC_SOURCE_TAR = "$MSVC_SOURCE.tar"
 $MSVC_SOURCE_TARXZ = "$MSVC_SOURCE_TAR.xz"
 
@@ -51,8 +51,7 @@ Copy-Item .\CMakeModules -Recurse -Destination $MSVC_SOURCE
 Copy-Item $MSVC_SOURCE_TARXZ -Destination $RELEASE_DIST
 Copy-Item "$BUILD_DIR\*" -Destination $RELEASE_DIST -Recurse
 rm "$RELEASE_DIST\*.exe"
-Get-ChildItem "$BUILD_DIR" -Recurse -Filter "yuzu*.exe" | Copy-Item -destination $RELEASE_DIST
-Get-ChildItem "$BUILD_DIR" -Recurse -Filter "QtWebEngineProcess*.exe" | Copy-Item -destination $RELEASE_DIST
+Get-ChildItem "$BUILD_DIR" -Recurse -Filter "citra*.exe" | Copy-Item -destination $RELEASE_DIST
 7z a -tzip $MSVC_BUILD_ZIP $RELEASE_DIST\*
 7z a $MSVC_SEVENZIP $RELEASE_DIST
 

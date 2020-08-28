@@ -6,9 +6,15 @@ steps:
       buildType: 'current'
       targetPath: '$(Build.ArtifactStagingDirectory)'
   - task: DownloadPipelineArtifact@2
+    displayName: 'Download Linux (MinGW) Release'
+    inputs:
+      artifactName: 'citra-$(BuildName)-linux-mingw'
+      buildType: 'current'
+      targetPath: '$(Build.ArtifactStagingDirectory)'
+  - task: DownloadPipelineArtifact@2
     displayName: 'Download Linux Release'
     inputs:
-      artifactName: 'citra-$(BuildName)-linux'
+      artifactName: 'citra-$(BuildName)-linux-fresh'
       buildType: 'current'
       targetPath: '$(Build.ArtifactStagingDirectory)'
   - task: DownloadPipelineArtifact@2

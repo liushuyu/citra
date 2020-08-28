@@ -53,3 +53,5 @@ stages:
     displayName: 'github'
     steps:
     - template: ./templates/release-github.yml
+      parameters:
+        DisplayPrefix: ''

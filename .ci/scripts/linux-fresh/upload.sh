@@ -16,4 +16,4 @@ cp build/bin/Release/citra-qt "$REV_NAME"
 mkdir "$REV_NAME/dist"
 cp dist/icon.png "$REV_NAME/dist/citra.png"
 
-. .travis/common/post-upload.sh
+. .ci/scripts/common/post-upload.sh

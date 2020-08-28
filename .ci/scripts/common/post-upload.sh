@@ -1,18 +1,16 @@
 #!/bin/bash -ex
 
 RELEASE_NAME="${RELEASE_NAME:-head}"
-
 # Copy documentation
-cp -nv license.txt "$DIR_NAME"
-cp -nv README.md "$DIR_NAME"
+cp -v license.txt "$REV_NAME"
+cp -v README.md "$REV_NAME"
 
-tar -cJvf "${REV_NAME}-source.tar.xz" src externals CMakeLists.txt README.md license.txt
-cp -nv "${REV_NAME}-source.tar.xz" "$DIR_NAME"
+# Copy cross-platform scripting support
+cp -rv dist/scripting "$REV_NAME"
 
-tar $COMPRESSION_FLAGS "$ARCHIVE_NAME" "$DIR_NAME"
+tar $COMPRESSION_FLAGS "$ARCHIVE_NAME" "$REV_NAME"
 
-mv -v "$DIR_NAME" $RELEASE_NAME
-mv -v "${REV_NAME}-source.tar.xz" $RELEASE_NAME
+mv -v "$REV_NAME" $RELEASE_NAME
 
 7z a "$REV_NAME.7z" $RELEASE_NAME
 

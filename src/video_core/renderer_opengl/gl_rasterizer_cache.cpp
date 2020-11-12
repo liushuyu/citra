@@ -180,10 +180,7 @@ static void MortonCopyTile(u32 stride, u8* tile_buffer, u8* gl_buffer) {
                 } else if (format == PixelFormat::RGBA8 && GLES) {
                     // because GLES does not have ABGR format
                     // so we will do byteswapping here
-                    gl_ptr[0] = tile_ptr[3];
-                    gl_ptr[1] = tile_ptr[2];
-                    gl_ptr[2] = tile_ptr[1];
-                    gl_ptr[3] = tile_ptr[0];
+                    *(u32*)gl_ptr = __bswap_32(*(u32*)tile_ptr);
                 } else if (format == PixelFormat::RGB8 && GLES) {
                     gl_ptr[0] = tile_ptr[2];
                     gl_ptr[1] = tile_ptr[1];

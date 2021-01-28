@@ -43,6 +43,8 @@ option(USE_SYSTEM_BOOST "Use the system Boost libs (instead of the bundled ones)
 
 CMAKE_DEPENDENT_OPTION(ENABLE_FDK "Use FDK AAC decoder" OFF "NOT ENABLE_FFMPEG_AUDIO_DECODER;NOT ENABLE_MF" OFF)
 
+option(USE_GLES_ONLY "Only use OpenGL ES API in Citra" OFF)
+
 if(NOT EXISTS ${PROJECT_SOURCE_DIR}/.git/hooks/pre-commit)
     message(STATUS "Copying pre-commit hook")
     file(COPY hooks/pre-commit
@@ -359,6 +361,10 @@ if(ENABLE_QT)
     set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT citra-qt)
 else()
     set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT citra)
+endif()
+
+if(USE_GLES_ONLY)
+    add_compile_definitions(GLES_ONLY)
 endif()
 
 # Installation instructions

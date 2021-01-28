@@ -894,6 +894,7 @@ bool GMainWindow::LoadROM(const QString& filename) {
 
     Frontend::ScopeAcquireContext scope(*render_window);
 
+#ifndef GLES_ONLY
     const QString below_gl33_title = tr("OpenGL 3.3 Unsupported");
     const QString below_gl33_message = tr("Your GPU may not support OpenGL 3.3, or you do not "
                                           "have the latest graphics driver.");
@@ -902,7 +903,7 @@ bool GMainWindow::LoadROM(const QString& filename) {
         QMessageBox::critical(this, below_gl33_title, below_gl33_message);
         return false;
     }
-
+#endif
     Core::System& system{Core::System::GetInstance()};
 
     const Core::System::ResultStatus result{system.Load(*render_window, filename.toStdString())};
@@ -2425,8 +2426,12 @@ int main(int argc, char* argv[]) {
     QCoreApplication::setApplicationName(QStringLiteral("Citra"));
 
     QSurfaceFormat format;
+#ifdef GLES_ONLY
+    format.setVersion(3, 2);
+#else
     format.setVersion(3, 3);
     format.setProfile(QSurfaceFormat::CoreProfile);
+#endif
     format.setSwapInterval(0);
     // TODO: expose a setting for buffer value (ie default/single/double/triple)
     format.setSwapBehavior(QSurfaceFormat::DefaultSwapBehavior);

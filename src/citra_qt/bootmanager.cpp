@@ -136,8 +136,10 @@ void OpenGLWindow::Present() {
         VideoCore::g_renderer->TryPresent(100);
     }
     context->swapBuffers(this);
+#ifndef GLES_ONLY
     auto f = context->versionFunctions<QOpenGLFunctions_3_3_Core>();
     f->glFinish();
+#endif
     QWindow::requestUpdate();
 }
 

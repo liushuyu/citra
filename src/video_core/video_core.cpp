@@ -42,9 +42,11 @@ Memory::MemorySystem* g_memory;
 ResultStatus Init(Frontend::EmuWindow& emu_window, Memory::MemorySystem& memory) {
     g_memory = &memory;
     Pica::Init();
-
+#ifdef GLES_ONLY
+    OpenGL::GLES = true;
+#else
     OpenGL::GLES = Settings::values.use_gles;
-
+#endif
     g_renderer = std::make_unique<OpenGL::RendererOpenGL>(emu_window);
     ResultStatus result = g_renderer->Init();
 
